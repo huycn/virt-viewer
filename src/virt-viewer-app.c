@@ -973,6 +973,26 @@ virt_viewer_app_get_title(VirtViewerApp *self)
     return title;
 }
 
+static guint
+virt_viewer_app_get_n_enabled_displays(VirtViewerApp *self)
+{
+    VirtViewerAppPrivate *priv = virt_viewer_app_get_instance_private(self);
+    GHashTableIter iter;
+    gpointer value;
+    guint n = 0;
+
+    if (!priv->displays)
+        return 0;
+
+    g_hash_table_iter_init(&iter, priv->displays);
+    while (g_hash_table_iter_next(&iter, NULL, &value)) {
+        if (virt_viewer_display_get_enabled(VIRT_VIEWER_DISPLAY(value)))
+            n++;
+    }
+
+    return n;
+}
+
 static void
 virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
                                     VirtViewerWindow *window,
@@ -981,7 +1001,9 @@ virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
     gchar *subtitle = NULL;
     const gchar *title = virt_viewer_app_get_title(app);
 
-    if (title != NULL) {
+    /* Only decorate the title with the display number when the guest has
+     * more than one monitor, otherwise keep the original title */
+    if (title != NULL && virt_viewer_app_get_n_enabled_displays(app) > 1) {
         VirtViewerDisplay *display = virt_viewer_window_get_display(window);
         const gchar *d = strstr(title, "%d");
         gchar *desc = NULL;
@@ -997,6 +1019,8 @@ virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
         } else
             subtitle = g_strdup_printf("%s (%s)", title, desc);
         g_free(desc);
+    } else {
+        subtitle = g_strdup(title);
     }
 
     g_object_set(window, "subtitle", subtitle, NULL);
@@ -1314,6 +1338,7 @@ display_show_hint(VirtViewerDisplay *display,
         }
     }
     virt_viewer_app_update_menu_displays(self);
+    virt_viewer_app_set_all_window_subtitles(self);
 }
 
 static void
@@ -1377,6 +1402,7 @@ virt_viewer_app_display_removed(VirtViewerSession *session G_GNUC_UNUSED,
     virt_viewer_app_remove_nth_window(self, nth);
     g_hash_table_remove(priv->displays, GINT_TO_POINTER(nth));
     virt_viewer_app_update_menu_displays(self);
+    virt_viewer_app_set_all_window_subtitles(self);
 }
 
 static void
