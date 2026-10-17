@@ -175,6 +175,12 @@ option, and will attempt to do a reconnection before it quits.
 Hide the window header bar (the title bar holding the menus and the
 window buttons). The header bar is shown by default.
 
+=item --window-class=CLASS
+
+Set the window class, so that window managers, desktop files and window
+rules can tell this window apart from other instances. It sets the
+WM_CLASS property on X11 and the app_id on Wayland.
+
 =item --id, --uuid, --domain-name
 
 Connect to the virtual machine by its id, uuid or name. These options

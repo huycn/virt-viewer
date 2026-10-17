@@ -2206,6 +2206,7 @@ static gboolean opt_fullscreen = FALSE;
 static gboolean opt_kiosk = FALSE;
 static gboolean opt_kiosk_quit = FALSE;
 static gboolean opt_no_header_bar = FALSE;
+static gchar *opt_window_class = NULL;
 static gchar *opt_cursor = NULL;
 static gchar *opt_resize = NULL;
 
@@ -2657,6 +2658,13 @@ virt_viewer_app_local_command_line (GApplication   *gapp,
 #endif
         g_print("\n");
         ret = TRUE;
+    }
+
+    if (opt_window_class) {
+        /* GDK uses the program name for the Wayland app_id and, with the
+         * program class, for the X11 WM_CLASS */
+        g_set_prgname(opt_window_class);
+        gdk_set_program_class(opt_window_class);
     }
 
     if (opt_cursor) {
@@ -3642,6 +3650,8 @@ virt_viewer_app_add_option_entries(G_GNUC_UNUSED VirtViewerApp *self,
           N_("Quit on given condition in kiosk mode"), N_("<never|on-disconnect>") },
         { "no-header-bar", '\0', 0, G_OPTION_ARG_NONE, &opt_no_header_bar,
           N_("Hide the window header bar"), NULL },
+        { "window-class", '\0', 0, G_OPTION_ARG_STRING, &opt_window_class,
+          N_("Set the window class (X11 WM_CLASS, Wayland app_id)"), N_("CLASS") },
         { "verbose", 'v', 0, G_OPTION_ARG_NONE, &opt_verbose,
           N_("Display verbose information"), NULL },
         { "debug", '\0', 0, G_OPTION_ARG_NONE, &opt_debug,
