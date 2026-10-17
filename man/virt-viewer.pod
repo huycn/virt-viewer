@@ -170,6 +170,11 @@ kiosk-quit option to "on-disconnect" value, virt-viewer will quit
 instead. Please note that --reconnect takes precedence over this
 option, and will attempt to do a reconnection before it quits.
 
+=item --no-header-bar
+
+Hide the window header bar (the title bar holding the menus and the
+window buttons). The header bar is shown by default.
+
 =item --id, --uuid, --domain-name
 
 Connect to the virtual machine by its id, uuid or name. These options

@@ -90,6 +90,7 @@ struct _VirtViewerWindow {
     gint fullscreen_monitor;
     gboolean desktop_resize_pending;
     gboolean kiosk;
+    gboolean header_bar_hidden;
 
     gint zoomlevel;
     gboolean fullscreen;
@@ -714,7 +715,8 @@ virt_viewer_window_leave_fullscreen(VirtViewerWindow *self)
     virt_viewer_timed_revealer_force_reveal(self->revealer, FALSE);
     gtk_widget_set_size_request(self->window, -1, -1);
     gtk_window_unfullscreen(GTK_WINDOW(self->window));
-    gtk_widget_show(GTK_WIDGET(gtk_builder_get_object(self->builder, "header")));
+    if (!self->header_bar_hidden)
+        gtk_widget_show(GTK_WIDGET(gtk_builder_get_object(self->builder, "header")));
 
 }
 
@@ -1686,6 +1688,20 @@ virt_viewer_window_set_kiosk(VirtViewerWindow *self, gboolean enabled)
         virt_viewer_window_enable_kiosk(self);
     else
         g_debug("disabling kiosk not implemented yet");
+}
+
+void
+virt_viewer_window_set_header_bar_hidden(VirtViewerWindow *self, gboolean hidden)
+{
+    GtkWidget *header;
+
+    g_return_if_fail(VIRT_VIEWER_IS_WINDOW(self));
+
+    self->header_bar_hidden = hidden;
+
+    header = GTK_WIDGET(gtk_builder_get_object(self->builder, "header"));
+    gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header), !hidden);
+    gtk_widget_set_visible(header, !hidden && !self->fullscreen);
 }
 
 static void

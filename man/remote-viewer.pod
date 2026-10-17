@@ -182,6 +182,11 @@ protocol:
 
 =over 4
 
+=item --no-header-bar
+
+Hide the window header bar (the title bar holding the menus and the
+window buttons). The header bar is shown by default.
+
 =item C<version> (string)
 
 If remote-viewer version number isn't greater or equal to the required

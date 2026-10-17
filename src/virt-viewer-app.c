@@ -138,6 +138,7 @@ struct _VirtViewerAppPrivate {
     gboolean shared;
     gboolean quitting;
     gboolean kiosk;
+    gboolean hide_header_bar;
     gboolean vm_ui;
     gboolean vm_running;
     gboolean initialized;
@@ -1209,6 +1210,7 @@ virt_viewer_app_window_new(VirtViewerApp *self, gint nth)
 
     window = g_object_new(VIRT_VIEWER_TYPE_WINDOW, "app", self, NULL);
     virt_viewer_window_set_kiosk(window, priv->kiosk);
+    virt_viewer_window_set_header_bar_hidden(window, priv->hide_header_bar);
     if (priv->main_window)
         virt_viewer_window_set_zoom_level(window, virt_viewer_window_get_zoom_level(priv->main_window));
 
@@ -2203,6 +2205,7 @@ static gboolean opt_debug = FALSE;
 static gboolean opt_fullscreen = FALSE;
 static gboolean opt_kiosk = FALSE;
 static gboolean opt_kiosk_quit = FALSE;
+static gboolean opt_no_header_bar = FALSE;
 static gchar *opt_cursor = NULL;
 static gchar *opt_resize = NULL;
 
@@ -2557,6 +2560,7 @@ virt_viewer_app_on_application_startup(GApplication *app)
 
     priv->verbose = opt_verbose;
     priv->quit_on_disconnect = opt_kiosk ? opt_kiosk_quit : TRUE;
+    priv->hide_header_bar = opt_no_header_bar;
 
     priv->main_window = virt_viewer_app_window_new(self,
                                                    virt_viewer_app_get_first_monitor(self));
@@ -3636,6 +3640,8 @@ virt_viewer_app_add_option_entries(G_GNUC_UNUSED VirtViewerApp *self,
           N_("Enable kiosk mode"), NULL },
         { "kiosk-quit", '\0', 0, G_OPTION_ARG_CALLBACK, option_kiosk_quit,
           N_("Quit on given condition in kiosk mode"), N_("<never|on-disconnect>") },
+        { "no-header-bar", '\0', 0, G_OPTION_ARG_NONE, &opt_no_header_bar,
+          N_("Hide the window header bar"), NULL },
         { "verbose", 'v', 0, G_OPTION_ARG_NONE, &opt_verbose,
           N_("Display verbose information"), NULL },
         { "debug", '\0', 0, G_OPTION_ARG_NONE, &opt_debug,
